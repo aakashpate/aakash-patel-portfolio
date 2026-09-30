@@ -34,7 +34,7 @@ const Navbar = () => {
   return (
     <>
       <div className="header">
-        <a href="/#" className="navbar-title" data-cursor="disable">
+        <a href="#" className="navbar-title" data-cursor="disable">
           AP
         </a>
         <a

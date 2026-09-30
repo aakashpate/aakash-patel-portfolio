@@ -3,6 +3,7 @@ import WorkImage from "./WorkImage";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { asset } from "../utils/asset";
 
 gsap.registerPlugin(useGSAP);
 
@@ -14,7 +15,7 @@ const projects = [
     tools: "HTML, CSS, JavaScript",
     description: "Responsive restaurant website with modern UI and mobile-friendly layout.",
     url: "https://mumbaimenu.netlify.app",
-    image: "/images/mumbai-menu.png",
+    image: asset("/images/mumbai-menu.png"),
   },
   {
     number: "02",
@@ -23,7 +24,7 @@ const projects = [
     tools: "HTML, CSS, JavaScript",
     description: "Product showcase website with attractive design and smooth navigation.",
     url: "https://darkmatterchocolate.netlify.app",
-    image: "/images/dark-matter.png",
+    image: asset("/images/dark-matter.png"),
   },
 ];
 
