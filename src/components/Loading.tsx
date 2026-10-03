@@ -10,14 +10,20 @@ const Loading = ({ percent }: { percent: number }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [clicked, setClicked] = useState(false);
 
-  if (percent >= 100) {
-    setTimeout(() => {
+  useEffect(() => {
+    if (percent < 100) return;
+    let fadeTimer: ReturnType<typeof setTimeout>;
+    const showTimer = setTimeout(() => {
       setLoaded(true);
-      setTimeout(() => {
+      fadeTimer = setTimeout(() => {
         setIsLoaded(true);
       }, 1000);
     }, 600);
-  }
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(fadeTimer);
+    };
+  }, [percent]);
 
   useEffect(() => {
     import("./utils/initialFX").then((module) => {
@@ -123,13 +129,13 @@ export const setProgress = (setLoading: (value: number) => void) => {
       clearInterval(interval);
       interval = setInterval(() => {
         if (percent < 100) {
-          percent++;
+          percent = Math.min(100, percent + 4);
           setLoading(percent);
         } else {
           resolve(percent);
           clearInterval(interval);
         }
-      }, 2);
+      }, 16);
     });
   }
   return { loaded, percent, clear };

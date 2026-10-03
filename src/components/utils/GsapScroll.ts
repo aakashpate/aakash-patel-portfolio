@@ -1,41 +1,48 @@
 import * as THREE from "three";
 import gsap from "gsap";
+import { st } from "../../utils/scroll";
+
+const charTimelines: gsap.core.Timeline[] = [];
+const allTimelines: gsap.core.Timeline[] = [];
+
+function killTimelines(list: gsap.core.Timeline[]) {
+  list.forEach((tl) => tl.kill());
+  list.length = 0;
+}
 
 export function setCharTimeline(
   character: THREE.Object3D<THREE.Object3DEventMap> | null,
   camera: THREE.PerspectiveCamera
 ) {
-  let intensity: number = 0;
-  setInterval(() => {
-    intensity = Math.random();
-  }, 200);
+  killTimelines(charTimelines);
   const tl1 = gsap.timeline({
-    scrollTrigger: {
+    scrollTrigger: st({
       trigger: ".landing-section",
       start: "top top",
       end: "bottom top",
       scrub: true,
       invalidateOnRefresh: true,
-    },
+    }),
   });
   const tl2 = gsap.timeline({
-    scrollTrigger: {
+    scrollTrigger: st({
       trigger: ".about-section",
       start: "center 55%",
       end: "bottom top",
       scrub: true,
       invalidateOnRefresh: true,
-    },
+    }),
   });
   const tl3 = gsap.timeline({
-    scrollTrigger: {
+    scrollTrigger: st({
       trigger: ".whatIDO",
       start: "top top",
       end: "bottom top",
       scrub: true,
       invalidateOnRefresh: true,
-    },
+    }),
   });
+  charTimelines.push(tl1, tl2, tl3);
   let screenLight: THREE.Object3D | null = null;
   let monitor: THREE.Mesh | null = null;
   character?.children.forEach((object: THREE.Object3D) => {
@@ -56,11 +63,14 @@ export function setCharTimeline(
         (object.material as THREE.MeshStandardMaterial).transparent = true;
         (object.material as THREE.MeshStandardMaterial).opacity = 0;
         (object.material as THREE.MeshStandardMaterial).emissive.set("#C8BFFF");
-        gsap.timeline({ repeat: -1, repeatRefresh: true }).to(object.material, {
-          emissiveIntensity: () => intensity * 8,
-          duration: () => Math.random() * 0.6,
-          delay: () => Math.random() * 0.1,
-        });
+        const flicker = gsap
+          .timeline({ repeat: -1, repeatRefresh: true })
+          .to(object.material, {
+            emissiveIntensity: () => Math.random() * 8,
+            duration: () => Math.random() * 0.6,
+            delay: () => Math.random() * 0.1,
+          });
+        charTimelines.push(flicker);
         screenLight = object;
       }
     }
@@ -126,27 +136,30 @@ export function setCharTimeline(
   } else {
     if (character) {
       const tM2 = gsap.timeline({
-        scrollTrigger: {
+        scrollTrigger: st({
           trigger: ".what-box-in",
           start: "top 70%",
           end: "bottom top",
-        },
+        }),
       });
+      charTimelines.push(tM2);
       tM2.to(".what-box-in", { display: "flex", duration: 0.1, delay: 0 }, 0);
     }
   }
 }
 
 export function setAllTimeline() {
+  killTimelines(allTimelines);
   const careerTimeline = gsap.timeline({
-    scrollTrigger: {
+    scrollTrigger: st({
       trigger: ".career-section",
       start: "top 30%",
       end: "100% center",
       scrub: true,
       invalidateOnRefresh: true,
-    },
+    }),
   });
+  allTimelines.push(careerTimeline);
   careerTimeline
     .fromTo(
       ".career-timeline",

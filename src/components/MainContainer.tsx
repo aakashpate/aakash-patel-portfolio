@@ -1,4 +1,4 @@
-import { lazy, PropsWithChildren, Suspense, useEffect, useState } from "react";
+import { lazy, PropsWithChildren, Suspense, useEffect, useRef, useState } from "react";
 import About from "./About";
 import Career from "./Career";
 import Contact from "./Contact";
@@ -9,6 +9,7 @@ import SocialIcons from "./SocialIcons";
 import WhatIDo from "./WhatIDo";
 import Work from "./Work";
 import setSplitText from "./utils/splitText";
+import { debounce, getScroller } from "../utils/scroll";
 
 const TechStack = lazy(() => import("./TechStack"));
 
@@ -16,6 +17,33 @@ const MainContainer = ({ children }: PropsWithChildren) => {
   const [isDesktopView, setIsDesktopView] = useState<boolean>(
     window.innerWidth > 1024
   );
+  const [techReady, setTechReady] = useState(false);
+  const techSlotRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isDesktopView || techReady) return;
+    const slot = techSlotRef.current;
+    if (!slot) {
+      setTechReady(true);
+      return;
+    }
+    const el: HTMLDivElement = slot;
+    const scroller = getScroller();
+    const detach = () => {
+      scroller?.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+    function check() {
+      if (el.getBoundingClientRect().top < window.innerHeight + 1200) {
+        setTechReady(true);
+        detach();
+      }
+    }
+    check();
+    scroller?.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return detach;
+  }, [isDesktopView, techReady]);
 
   useEffect(() => {
     const resizeHandler = () => {
@@ -23,9 +51,11 @@ const MainContainer = ({ children }: PropsWithChildren) => {
       setIsDesktopView(window.innerWidth > 1024);
     };
     resizeHandler();
-    window.addEventListener("resize", resizeHandler);
+    const onResize = debounce(resizeHandler, 200);
+    window.addEventListener("resize", onResize);
     return () => {
-      window.removeEventListener("resize", resizeHandler);
+      onResize.cancel();
+      window.removeEventListener("resize", onResize);
     };
   }, [isDesktopView]);
 
@@ -43,11 +73,14 @@ const MainContainer = ({ children }: PropsWithChildren) => {
             <WhatIDo />
             <Career />
             <Work />
-            {isDesktopView && (
-              <Suspense fallback={<div>Loading....</div>}>
-                <TechStack />
-              </Suspense>
-            )}
+            {isDesktopView &&
+              (techReady ? (
+                <Suspense fallback={<div className="techstack" />}>
+                  <TechStack />
+                </Suspense>
+              ) : (
+                <div className="techstack" ref={techSlotRef} />
+              ))}
             <Contact />
           </div>
         </div>

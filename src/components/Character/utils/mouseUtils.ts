@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { getScrollTop } from "../../../utils/scroll";
 
 export const handleMouseMove = (
   event: MouseEvent,
@@ -43,7 +44,7 @@ export const handleHeadRotation = (
   lerp: (x: number, y: number, t: number) => number
 ) => {
   if (!headBone) return;
-  if (window.scrollY < 200) {
+  if (getScrollTop() < 200) {
     const maxRotation = Math.PI / 6;
     headBone.rotation.y = lerp(
       headBone.rotation.y,

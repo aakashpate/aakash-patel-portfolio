@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { useRef, useMemo, useState, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment } from "@react-three/drei";
 import { EffectComposer, N8AO } from "@react-three/postprocessing";
 import {
@@ -11,6 +11,7 @@ import {
   RapierRigidBody,
 } from "@react-three/rapier";
 import { asset } from "../utils/asset";
+import { getScroller, debounce } from "../utils/scroll";
 
 const textureLoader = new THREE.TextureLoader();
 const imageUrls = [
@@ -26,6 +27,19 @@ const imageUrls = [
 const textures = imageUrls.map((url) => textureLoader.load(url));
 
 const sphereGeometry = new THREE.SphereGeometry(1, 28, 28);
+
+function FrameLimiter({ fps = 30, enabled }: { fps?: number; enabled: boolean }) {
+  const invalidate = useThree((state) => state.invalidate);
+  useEffect(() => {
+    if (!enabled) return;
+    const interval = window.setInterval(
+      () => invalidate(),
+      Math.round(1000 / fps)
+    );
+    return () => window.clearInterval(interval);
+  }, [enabled, fps, invalidate]);
+  return null;
+}
 
 const spheres = [...Array(30)].map(() => ({
   scale: [0.7, 1, 0.8, 1, 1][Math.floor(Math.random() * 5)],
@@ -130,26 +144,22 @@ const TechStack = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollY = window.scrollY || document.documentElement.scrollTop;
-      const threshold = document
-        .getElementById("work")!
-        .getBoundingClientRect().top;
-      setIsActive(scrollY > threshold);
+      const techEl = document.querySelector<HTMLElement>(".techstack");
+      if (!techEl) return;
+      const rect = techEl.getBoundingClientRect();
+      setIsActive(
+        rect.top < window.innerHeight * 1.5 && rect.bottom > -200
+      );
     };
-    document.querySelectorAll(".header a").forEach((elem) => {
-      const element = elem as HTMLAnchorElement;
-      element.addEventListener("click", () => {
-        const interval = setInterval(() => {
-          handleScroll();
-        }, 10);
-        setTimeout(() => {
-          clearInterval(interval);
-        }, 1000);
-      });
-    });
-    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    const scroller = getScroller();
+    const onWindowResize = debounce(handleScroll, 200);
+    scroller?.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", onWindowResize);
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      scroller?.removeEventListener("scroll", handleScroll);
+      onWindowResize.cancel();
+      window.removeEventListener("resize", onWindowResize);
     };
   }, []);
   const materials = useMemo(() => {
@@ -173,11 +183,14 @@ const TechStack = () => {
 
       <Canvas
         shadows
+        frameloop="demand"
+        dpr={[1, 1.5]}
         gl={{ alpha: true, stencil: false, depth: false, antialias: false }}
         camera={{ position: [0, 0, 20], fov: 32.5, near: 1, far: 100 }}
         onCreated={(state) => (state.gl.toneMappingExposure = 1.5)}
         className="tech-canvas"
       >
+        <FrameLimiter enabled={isActive} />
         <ambientLight intensity={1} />
         <spotLight
           position={[20, 20, 25]}
@@ -185,7 +198,7 @@ const TechStack = () => {
           angle={0.2}
           color="white"
           castShadow
-          shadow-mapSize={[512, 512]}
+          shadow-mapSize={[256, 256]}
         />
         <directionalLight position={[0, 5, -4]} intensity={2} />
         <Physics gravity={[0, 0, 0]}>

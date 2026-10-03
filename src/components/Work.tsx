@@ -4,6 +4,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { asset } from "../utils/asset";
+import { st } from "../utils/scroll";
 
 gsap.registerPlugin(useGSAP);
 
@@ -34,11 +35,12 @@ const Work = () => {
 
   function setTranslateX() {
     const box = document.getElementsByClassName("work-box");
-    const rectLeft = document
-      .querySelector(".work-container")!
-      .getBoundingClientRect().left;
+    const container = document.querySelector(".work-container");
+    if (!box.length || !container) return;
+    const rectLeft = container.getBoundingClientRect().left;
     const rect = box[0].getBoundingClientRect();
-    const parentWidth = box[0].parentElement!.getBoundingClientRect().width;
+    const parentWidth =
+      box[0].parentElement?.getBoundingClientRect().width ?? 0;
     const padding: number =
       parseInt(window.getComputedStyle(box[0]).padding) / 2;
     translateX = rect.width * box.length - (rectLeft + parentWidth) + padding;
@@ -46,19 +48,25 @@ const Work = () => {
 
   setTranslateX();
 
+  const getDistance = () => {
+    setTranslateX();
+    return Math.max(translateX, 0);
+  };
+
   const timeline = gsap.timeline({
-    scrollTrigger: {
+    scrollTrigger: st({
       trigger: ".work-section",
       start: "top top",
-      end: `+=${translateX}`, // Use actual scroll width
+      end: () => `+=${getDistance()}`,
       scrub: true,
       pin: true,
+      invalidateOnRefresh: true,
       id: "work",
-    },
+    }),
   });
 
   timeline.to(".work-flex", {
-    x: -translateX,
+    x: () => -getDistance(),
     ease: "none",
   });
 

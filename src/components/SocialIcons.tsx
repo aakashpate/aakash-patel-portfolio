@@ -12,6 +12,7 @@ import HoverLinks from "./HoverLinks";
 const SocialIcons = () => {
   useEffect(() => {
     const social = document.getElementById("social") as HTMLElement;
+    const stopFns: (() => void)[] = [];
 
     social.querySelectorAll("span").forEach((item) => {
       const elem = item as HTMLElement;
@@ -20,17 +21,32 @@ const SocialIcons = () => {
       const rect = elem.getBoundingClientRect();
       let mouseX = rect.width / 2;
       let mouseY = rect.height / 2;
-      let currentX = 0;
-      let currentY = 0;
+      let currentX = mouseX;
+      let currentY = mouseY;
+      let running = false;
+      let rafId = 0;
 
-      const updatePosition = () => {
+      const tick = () => {
         currentX += (mouseX - currentX) * 0.1;
         currentY += (mouseY - currentY) * 0.1;
 
         link.style.setProperty("--siLeft", `${currentX}px`);
         link.style.setProperty("--siTop", `${currentY}px`);
 
-        requestAnimationFrame(updatePosition);
+        if (
+          Math.abs(mouseX - currentX) > 0.1 ||
+          Math.abs(mouseY - currentY) > 0.1
+        ) {
+          rafId = requestAnimationFrame(tick);
+        } else {
+          running = false;
+        }
+      };
+
+      const start = () => {
+        if (running) return;
+        running = true;
+        rafId = requestAnimationFrame(tick);
       };
 
       const onMouseMove = (e: MouseEvent) => {
@@ -44,16 +60,21 @@ const SocialIcons = () => {
           mouseX = rect.width / 2;
           mouseY = rect.height / 2;
         }
+        start();
       };
 
       document.addEventListener("mousemove", onMouseMove);
 
-      updatePosition();
-
-      return () => {
-        elem.removeEventListener("mousemove", onMouseMove);
-      };
+      start();
+      stopFns.push(() => {
+        cancelAnimationFrame(rafId);
+        document.removeEventListener("mousemove", onMouseMove);
+      });
     });
+
+    return () => {
+      stopFns.forEach((stop) => stop());
+    };
   }, []);
 
   return (

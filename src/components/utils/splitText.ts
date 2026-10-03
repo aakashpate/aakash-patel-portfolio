@@ -1,6 +1,7 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import FreeSplitText from "./freeSplitText";
+import { st } from "../../utils/scroll";
 
 interface ParaElement extends HTMLElement {
   anim?: gsap.core.Animation;
@@ -9,9 +10,32 @@ interface ParaElement extends HTMLElement {
 
 gsap.registerPlugin(ScrollTrigger);
 
+let refreshListenerAttached = false;
+let lastSplitWidth = -1;
+let splitting = false;
+
+function attachRefreshListener() {
+  if (refreshListenerAttached) return;
+  refreshListenerAttached = true;
+  ScrollTrigger.addEventListener("refresh", () => setSplitText());
+}
+
 export default function setSplitText() {
   ScrollTrigger.config({ ignoreMobileResize: true });
+  attachRefreshListener();
+  if (splitting) return;
   if (window.innerWidth < 900) return;
+  if (window.innerWidth === lastSplitWidth) return;
+  splitting = true;
+  lastSplitWidth = window.innerWidth;
+  try {
+    runSplit();
+  } finally {
+    splitting = false;
+  }
+}
+
+function runSplit() {
   const paras: NodeListOf<ParaElement> = document.querySelectorAll(".para");
   const titles: NodeListOf<ParaElement> = document.querySelectorAll(".title");
 
@@ -35,11 +59,11 @@ export default function setSplitText() {
       { autoAlpha: 0, y: 80 },
       {
         autoAlpha: 1,
-        scrollTrigger: {
+        scrollTrigger: st({
           trigger: para.parentElement?.parentElement,
           toggleActions: ToggleAction,
           start: TriggerStart,
-        },
+        }),
         duration: 1,
         ease: "power3.out",
         y: 0,
@@ -61,11 +85,11 @@ export default function setSplitText() {
       { autoAlpha: 0, y: 80, rotate: 10 },
       {
         autoAlpha: 1,
-        scrollTrigger: {
+        scrollTrigger: st({
           trigger: title.parentElement?.parentElement,
           toggleActions: ToggleAction,
           start: TriggerStart,
-        },
+        }),
         duration: 0.8,
         ease: "power2.inOut",
         y: 0,
@@ -74,6 +98,4 @@ export default function setSplitText() {
       }
     );
   });
-
-  ScrollTrigger.addEventListener("refresh", () => setSplitText());
 }
