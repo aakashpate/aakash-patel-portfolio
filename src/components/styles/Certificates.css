@@ -1,0 +1,153 @@
+.certificate-section h2 {
+  margin-top: 100px;
+  font-size: 70px;
+  font-weight: 500;
+}
+.certificate-section h2 > span {
+  color: var(--accentColor);
+}
+.certificate-section {
+  transition: 0s;
+  height: 100vh;
+  box-sizing: border-box;
+  will-change: transform;
+}
+.certificate-container {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-content: stretch;
+}
+.certificate-flex {
+  width: 100%;
+  display: flex;
+  height: 100%;
+  margin-left: -80px;
+  padding-right: 120px;
+  position: relative;
+}
+.certificate-box {
+  padding: 80px;
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  box-sizing: border-box;
+  border-right: 1px solid #363636;
+  flex-shrink: 0;
+  gap: 50px;
+  justify-content: start;
+}
+.certificate-flex .certificate-box:nth-child(even) {
+  flex-direction: column-reverse;
+}
+.certificate-flex::before,
+.certificate-flex::after {
+  content: "";
+  width: calc(50000vw);
+  height: 1px;
+  background-color: #363636;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+}
+.certificate-flex::after {
+  top: 100%;
+}
+.certificate-title {
+  justify-content: space-between;
+  display: flex;
+  width: 100%;
+  margin-bottom: 20px;
+}
+.certificate-title > div {
+  text-align: right;
+}
+.certificate-title h3 {
+  font-size: 50px;
+  line-height: 50px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.certificate-info h4 {
+  font-size: 18px;
+  font-weight: 400;
+  margin: 0;
+}
+.certificate-info p {
+  font-weight: 200;
+  color: #adacac;
+  margin: 0;
+  margin-top: 3px;
+}
+.certificate-info > p {
+  width: 90%;
+}
+.certificate-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+@media only screen and (max-height: 900px) {
+  .certificate-box {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+  .certificate-section h2 {
+    font-size: 60px;
+    margin-bottom: 30px;
+    margin-top: 70px;
+  }
+}
+@media only screen and (max-width: 1400px) {
+  .certificate-title h3 {
+    font-size: 35px;
+  }
+  .certificate-info p {
+    font-size: 13px;
+  }
+  .certificate-info h4 {
+    font-size: 15px;
+  }
+  .certificate-box {
+    width: 450px;
+    padding: 50px;
+  }
+  .certificate-flex {
+    margin-left: -50px;
+    padding-right: 75px;
+  }
+  .certificate-section h2 {
+    font-size: 50px;
+  }
+}
+@media only screen and (max-width: 1400px) {
+  .certificate-box {
+    width: 350px;
+    padding: 30px;
+  }
+  .certificate-flex {
+    margin-left: -30px;
+    padding-right: 45px;
+  }
+}
+
+@media only screen and (max-height: 650px) {
+  .certificate-section h2 {
+    font-size: 40px;
+    margin-bottom: 20px;
+  }
+  .certificate-box {
+    gap: 20px;
+  }
+}
+@media only screen and (max-width: 1025px) {
+  .certificate-container {
+    align-content: normal;
+  }
+  .certificate-flex {
+    height: auto;
+  }
+}

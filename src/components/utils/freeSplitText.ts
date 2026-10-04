@@ -56,13 +56,11 @@ export default class FreeSplitText {
     if (typeof selector === "string") {
       targets = Array.from(document.querySelectorAll(selector)) as HTMLElement[];
     } else if (Array.isArray(selector)) {
-      targets = selector
-        .map((item) =>
-          typeof item === "string"
-            ? (document.querySelectorAll(item) as unknown as HTMLElement[])
-            : [item]
-        )
-        .flat() as HTMLElement[];
+      targets = selector.flatMap((item) =>
+        typeof item === "string"
+          ? Array.from(document.querySelectorAll<HTMLElement>(item))
+          : [item]
+      );
     } else {
       targets = [selector];
     }
