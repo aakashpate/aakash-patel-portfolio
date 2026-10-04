@@ -54,6 +54,16 @@ const certificates: Certificate[] = [
   },
   {
     number: "04",
+    name: "Gemini Certified Student",
+    category: "Google AI",
+    issuer: "Google for Education",
+    year: "Aug 2026",
+    tools: "Google AI, Gemini, Practical AI Skills, University Tier",
+    url: asset("/certificates/google-gemini-certified-student.pdf"),
+    image: asset("/images/cert-gemini.png"),
+  },
+  {
+    number: "05",
     name: "NetQ Deployment and Installation",
     category: "NVIDIA Education",
     issuer: "NVIDIA",

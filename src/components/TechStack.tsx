@@ -2,7 +2,6 @@ import * as THREE from "three";
 import { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment } from "@react-three/drei";
-import { EffectComposer, N8AO } from "@react-three/postprocessing";
 import {
   BallCollider,
   Physics,
@@ -11,7 +10,6 @@ import {
   RapierRigidBody,
 } from "@react-three/rapier";
 import { asset } from "../utils/asset";
-import { getScroller, debounce } from "../utils/scroll";
 
 const textureLoader = new THREE.TextureLoader();
 const imageUrls = [
@@ -138,24 +136,14 @@ const TechStack = () => {
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const techEl = document.querySelector<HTMLElement>(".techstack");
-      if (!techEl) return;
-      const rect = techEl.getBoundingClientRect();
-      setIsActive(
-        rect.top < window.innerHeight * 1.5 && rect.bottom > -200
-      );
-    };
-    handleScroll();
-    const scroller = getScroller();
-    const onWindowResize = debounce(handleScroll, 200);
-    scroller?.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", onWindowResize);
-    return () => {
-      scroller?.removeEventListener("scroll", handleScroll);
-      onWindowResize.cancel();
-      window.removeEventListener("resize", onWindowResize);
-    };
+    const techEl = document.querySelector<HTMLElement>(".techstack");
+    if (!techEl || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => setIsActive(entries.some((entry) => entry.isIntersecting)),
+      { root: null, rootMargin: "0px 0px 150% 0px", threshold: 0 }
+    );
+    observer.observe(techEl);
+    return () => observer.disconnect();
   }, []);
   const materials = useMemo(() => {
     return textures.map(
@@ -178,8 +166,8 @@ const TechStack = () => {
 
       <Canvas
         shadows
-        frameloop="demand"
-        dpr={[1, 1.5]}
+        frameloop={isActive ? "demand" : "never"}
+        dpr={[1, 1.25]}
         gl={{ alpha: true, stencil: false, depth: false, antialias: false }}
         camera={{ position: [0, 0, 20], fov: 32.5, near: 1, far: 100 }}
         onCreated={(state) => (state.gl.toneMappingExposure = 1.5)}
@@ -212,9 +200,6 @@ const TechStack = () => {
           environmentIntensity={0.5}
           environmentRotation={[0, 4, 2]}
         />
-        <EffectComposer enableNormalPass={false}>
-          <N8AO color="#0f002c" aoRadius={2} intensity={1.15} />
-        </EffectComposer>
       </Canvas>
     </div>
   );

@@ -126,7 +126,7 @@ const Scene = () => {
               (entries) => {
                 sceneVisible = entries.some((entry) => entry.isIntersecting);
               },
-              { threshold: 0 }
+              { root: null, rootMargin: "-80px 0px -80px 0px", threshold: 0 }
             )
           : null;
       visibilityObserver?.observe(cleanupCanvasDiv);
