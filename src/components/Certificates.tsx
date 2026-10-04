@@ -163,7 +163,11 @@ const Certificates = () => {
                   View Certificate ↗
                 </a>
               </div>
-              <WorkImage image={certificate.image} alt={certificate.name} />
+              <WorkImage
+                image={certificate.image}
+                alt={certificate.name}
+                link={certificate.url}
+              />
             </div>
           ))}
         </div>

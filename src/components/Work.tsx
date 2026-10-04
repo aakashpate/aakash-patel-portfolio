@@ -155,7 +155,11 @@ const Work = () => {
                   View Live ↗
                 </a>
               </div>
-              <WorkImage image={project.image} alt={project.name} />
+              <WorkImage
+                image={project.image}
+                alt={project.name}
+                link={project.url}
+              />
             </div>
           ))}
         </div>
