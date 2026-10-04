@@ -27,6 +27,56 @@ const projects = [
     url: "https://darkmatterchocolate.netlify.app",
     image: asset("/images/dark-matter.png"),
   },
+  {
+    number: "03",
+    name: "Savor",
+    category: "Fine Dining Restaurant",
+    tools: "Next.js, React, Responsive UI",
+    description:
+      "Premium dining website with menu, gallery, reservations and private events.",
+    url: "https://astonishing-lamington-afe7e4.netlify.app",
+    image: asset("/images/work-savor.jpg"),
+  },
+  {
+    number: "04",
+    name: "Renoviq AI",
+    category: "AI Interior Design Platform",
+    tools: "HTML, CSS, JavaScript, AI",
+    description:
+      "Upload room photos and get an AI renovation plan with photorealistic renderings.",
+    url: "https://ai-homerenovation-agent.netlify.app",
+    image: asset("/images/work-renoviq.jpg"),
+  },
+  {
+    number: "05",
+    name: "India's Got Latent — S2",
+    category: "Fan Experience",
+    tools: "Next.js, React, Framer Motion",
+    description:
+      "Immersive season 2 fan experience with scroll-driven sections and live episodes.",
+    url: "https://indias-got-latent-s2-fan-experience.vercel.app",
+    image: asset("/images/work-igl-s2.jpg"),
+  },
+  {
+    number: "06",
+    name: "Cosmos",
+    category: "Digital Agency Website",
+    tools: "React, Vite, Framer Motion",
+    description:
+      "Dark, space-themed agency site with services, process and case studies.",
+    url: "https://aakashpate.github.io/cosmos-app/",
+    image: asset("/images/work-cosmos.jpg"),
+  },
+  {
+    number: "07",
+    name: "Timed Cards Opening",
+    category: "Landing Page Animation",
+    tools: "GSAP, HTML, CSS, JavaScript",
+    description:
+      "Staggered card-opening animation demo driven by GSAP timelines.",
+    url: "https://aakashpate.github.io/timed-cards-opening/",
+    image: asset("/images/work-timed-cards.jpg"),
+  },
 ];
 
 const Work = () => {
