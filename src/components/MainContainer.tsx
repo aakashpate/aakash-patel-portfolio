@@ -11,7 +11,13 @@ import Work from "./Work";
 import setSplitText from "./utils/splitText";
 import { debounce, getScroller } from "../utils/scroll";
 
+type NetworkInfoLike = { saveData?: boolean; effectiveType?: string };
+
 const TechStack = lazy(() => import("./TechStack"));
+
+const warmTechStack = () => {
+  void import("./TechStack").catch(() => {});
+};
 
 const MainContainer = ({ children }: PropsWithChildren) => {
   const [isDesktopView, setIsDesktopView] = useState<boolean>(
@@ -44,6 +50,40 @@ const MainContainer = ({ children }: PropsWithChildren) => {
     window.addEventListener("resize", check);
     return detach;
   }, [isDesktopView, techReady]);
+
+  useEffect(() => {
+    if (!isDesktopView) return;
+    const conn = (navigator as Navigator & { connection?: NetworkInfoLike })
+      .connection;
+    if (
+      conn?.saveData ||
+      conn?.effectiveType === "2g" ||
+      conn?.effectiveType === "slow-2g"
+    ) {
+      return;
+    }
+    let cancelled = false;
+    const idle = (
+      window as Window & {
+        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      }
+    ).requestIdleCallback;
+    const timer = window.setTimeout(() => {
+      if (cancelled) return;
+      if (idle)
+        idle(
+          () => {
+            if (!cancelled) warmTechStack();
+          },
+          { timeout: 5000 }
+        );
+      else warmTechStack();
+    }, 3000);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [isDesktopView]);
 
   useEffect(() => {
     const resizeHandler = () => {

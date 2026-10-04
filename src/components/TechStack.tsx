@@ -46,7 +46,6 @@ const spheres = [...Array(30)].map(() => ({
 }));
 
 type SphereProps = {
-  vec?: THREE.Vector3;
   scale: number;
   r?: typeof THREE.MathUtils.randFloatSpread;
   material: THREE.MeshPhysicalMaterial;
@@ -54,29 +53,26 @@ type SphereProps = {
 };
 
 function SphereGeo({
-  vec = new THREE.Vector3(),
   scale,
   r = THREE.MathUtils.randFloatSpread,
   material,
   isActive,
 }: SphereProps) {
   const api = useRef<RapierRigidBody | null>(null);
+  const impulse = useMemo(() => new THREE.Vector3(), []);
+  const force = useMemo(
+    () => new THREE.Vector3(-50 * scale, -150 * scale, -50 * scale),
+    [scale]
+  );
 
   useFrame((_state, delta) => {
-    if (!isActive) return;
-    delta = Math.min(0.1, delta);
-    const impulse = vec
-      .copy(api.current!.translation())
-      .normalize()
-      .multiply(
-        new THREE.Vector3(
-          -50 * delta * scale,
-          -150 * delta * scale,
-          -50 * delta * scale
-        )
-      );
-
-    api.current?.applyImpulse(impulse, true);
+    const body = api.current;
+    if (!isActive || !body) return;
+    const step = Math.min(0.1, delta);
+    body.applyImpulse(
+      impulse.copy(body.translation()).normalize().multiply(force).multiplyScalar(step),
+      true
+    );
   });
 
   return (
@@ -113,18 +109,17 @@ type PointerProps = {
 
 function Pointer({ vec = new THREE.Vector3(), isActive }: PointerProps) {
   const ref = useRef<RapierRigidBody>(null);
+  const target = useMemo(() => new THREE.Vector3(), []);
 
   useFrame(({ pointer, viewport }) => {
     if (!isActive) return;
-    const targetVec = vec.lerp(
-      new THREE.Vector3(
-        (pointer.x * viewport.width) / 2,
-        (pointer.y * viewport.height) / 2,
-        0
-      ),
-      0.2
+    target.set(
+      (pointer.x * viewport.width) / 2,
+      (pointer.y * viewport.height) / 2,
+      0
     );
-    ref.current?.setNextKinematicTranslation(targetVec);
+    vec.lerp(target, 0.2);
+    ref.current?.setNextKinematicTranslation(vec);
   });
 
   return (
